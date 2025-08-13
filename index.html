@@ -3,6 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Kirby-Paris Hydra Slayer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script defer>
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.renderMathInElement) {
+          window.renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            throwOnError: false
+          });
+        }
+      });
+    </script>
 </head>
 <body>
     <h1>Kirby-Paris Hydra Slayer</h1>
@@ -23,15 +40,14 @@
     </p>
 
     <p style="max-width: 900px;">
-        <strong>Kirby–Paris regrowth rule (brief):</strong> When you chop off a red leaf node at time step&nbsp;<span style="white-space:nowrap;">$t \ge 1$</span>,
-        let&nbsp;$P$ be its parent and&nbsp;$G$ be the grand-parent of that node. If $P \neq$ root, then $G$ sprouts
-        $n$ exact copies of the entire subtree rooted at&nbsp;$P$, where normally $n=t$ (or $n=1$ if “Reduced&nbsp;Growth” is enabled).  
-        Formally,
-        \[
-            P \neq \text{root} \implies G.\text{children} \mathrel{+}= \{\text{clone}(P)\}^{n}.  
-        \]
-        All IDs in the clones are relabelled uniquely. Chopping a head whose parent <em>is</em> the root simply removes that head with no regrowth.  
-        These rules guarantee termination but require proofs that outrun Peano Arithmetic!
+        <strong>Rules:</strong> 
+        The game starts at turn $t = 1$.
+            1. Select a leaf node $V$.
+            2. Delete $V$ from tree. Then, attach $t$ copies of the subtree rooted at $V$'s parent to its grandparent*. 
+
+            *If the grandparent does not exist, do nothing.
+
+        These rules guarantee termination but this cannot be proven in Peano Arithmetic!
     </p>
 
     <script>
