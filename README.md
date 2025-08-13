@@ -1,6 +1,7 @@
 # Kirby-Paris Hydra Game
 
-(Web implementation of the Kirby-Paris Hydra game.)[https://frkns.github.io/HydraGame] 
+[Web implementation of the Kirby-Paris Hydra game](https://frkns.github.io/HydraGame/)
+
 <br><br>
 The hydra game can be shown to always terminate in finite steps. However, it can't be proved in Peano Arithmetic. Good example of a *true but unprovable* statement in PA.
 
