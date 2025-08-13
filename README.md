@@ -19,10 +19,8 @@ Each turn, until the hydra is defeated:
 
 Define $\text{Hydra}(n)$ as the number of turns required to defeat a chain (linked-list-like) hydra of length $n$.<BR>
 
-Growth rate<BR>
-$>$ all functions provably total in PA.
-
-
-
+Asymptotically, $\text{Hydra}$<BR>
+$>$ all functions provably total in PA.<BR>
+$\approx f_{\epsilon_0}$, where $f$ is the fast-growing hierachy.<BR>
 
 
