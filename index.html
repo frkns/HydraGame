@@ -10,10 +10,29 @@
     <button onclick="initHydra(3)">Chain Length 3</button>
     <button onclick="initHydra(4)">Chain Length 4</button>
     <button onclick="initHydra(5)">Chain Length 5</button>
-    <button onclick="initHydra(6)">Chain Length 6</button>
+    <button onclick="initRandomHydra()">Random Hydra</button>
+    <button id="reducedBtn" onclick="toggleReducedGrowth()">Reduced Growth: Off</button>
     <br>
     <p id="status">Steps: 0</p>
     <canvas id="hydra" width="1200" height="500" style="border: 1px solid black;"></canvas>
+
+    <p style="max-width: 900px; margin-top: 1em;">
+        Rather surprisingly, the hydra is always defeated in a <em>finite</em> number of turns.  
+        Even though the creature seems to regrow heads exponentially, the depth of the tree never actually increases.
+        Eventually no heads remain and the battle ends.
+    </p>
+
+    <p style="max-width: 900px;">
+        <strong>Kirby–Paris regrowth rule (brief):</strong> When you chop off a red leaf node at time step&nbsp;<span style="white-space:nowrap;">$t \ge 1$</span>,
+        let&nbsp;$P$ be its parent and&nbsp;$G$ be the grand-parent of that node. If $P \neq$ root, then $G$ sprouts
+        $n$ exact copies of the entire subtree rooted at&nbsp;$P$, where normally $n=t$ (or $n=1$ if “Reduced&nbsp;Growth” is enabled).  
+        Formally,
+        \[
+            P \neq \text{root} \implies G.\text{children} \mathrel{+}= \{\text{clone}(P)\}^{n}.  
+        \]
+        All IDs in the clones are relabelled uniquely. Chopping a head whose parent <em>is</em> the root simply removes that head with no regrowth.  
+        These rules guarantee termination but require proofs that outrun Peano Arithmetic!
+    </p>
 
     <script>
         const canvas = document.getElementById('hydra');
@@ -24,6 +43,7 @@
         const radius = 10;
         const hSpacing = 40;
         const vSpacing = 80;
+        let reducedGrowth = false; // when true, N = 1
 
         class Node {
             constructor(id, children = []) {
@@ -55,6 +75,34 @@
             }
             root.children = [current];
             root.children[0].parent = root;
+            canvas.removeEventListener('click', handleClick);
+            canvas.addEventListener('click', handleClick);
+            redraw();
+        }
+
+        function initRandomHydra() {
+            step = 0;
+            idCounter = 1;
+            // Generate a random tree
+            const maxDepth = 2 + Math.floor(Math.random() * 3);
+            function buildRandom(depth) {
+                const node = new Node(newId());
+                if (depth <= 0) {
+                    return node;
+                }
+                // Decide number of children: bias towards 1-2, occasional 3
+                const r = Math.random();
+                let count = r < 0.5 ? 1 : (r < 0.85 ? 2 : 3);
+                for (let i = 0; i < count; i++) {
+                    const child = buildRandom(depth - (Math.random() < 0.3 ? 2 : 1));
+                    child.parent = node;
+                    node.children.push(child);
+                }
+                return node;
+            }
+            const randomTop = buildRandom(maxDepth);
+            root.children = [randomTop];
+            randomTop.parent = root;
             canvas.removeEventListener('click', handleClick);
             canvas.addEventListener('click', handleClick);
             redraw();
@@ -128,6 +176,18 @@
             if (root.children.length === 0) {
                 status.innerText += ' - Hydra slain!';
             }
+            // Display regrowth rate n in the top-right corner
+            const n = reducedGrowth ? 1 : step+1;
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.font = '14px sans-serif';
+            ctx.fillText(`Regrowth n = ${n}${reducedGrowth ? ' (reduced)' : ''}`, canvas.width - 8, 8);
+            // Display total node count just below (computed from max id + 1 to avoid duplicates)
+            const nodesList = getAllNodes();
+            const maxId = nodesList.reduce((m, nd) => Math.max(m, nd.id), 0);
+            const totalNodes = maxId + 1;
+            ctx.fillText(`Nodes = ${totalNodes}`, canvas.width - 8, 28);
         }
 
         function chop(leaf) {
@@ -136,7 +196,7 @@
             P.children = P.children.filter(c => c !== leaf);
             if (P !== root) {
                 const G = P.parent;
-                const N = step; // Fixed N=1 for manageable growth
+                const N = reducedGrowth ? 1 : step; // growth factor
                 for (let i = 0; i < N; i++) {
                     const copy = deepCopy(P, G);
                     G.children.push(copy);
@@ -175,6 +235,13 @@
             }
             traverse(root);
             return list;
+        }
+
+        function toggleReducedGrowth() {
+            reducedGrowth = !reducedGrowth;
+            const btn = document.getElementById('reducedBtn');
+            btn.textContent = `Reduced Growth: ${reducedGrowth ? 'On' : 'Off'}`;
+            redraw();
         }
 
         canvas.addEventListener('click', handleClick);
