@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirby–Paris Hydra Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Kirby–Paris Hydra (Playable Variant)</h1>
+    <div class="controls">
+      <button id="btnSimple">Simple Hydra</button>
+      <button id="btnMedium">Medium Hydra</button>
+      <button id="btnRandom">Random Hydra</button>
+      <button id="btnReset">Reset</button>
+      <span class="spacer"></span>
+      <span id="status">Moves: 0</span>
+    </div>
+    <p class="note">
+      Rule (variant): Click a leaf to cut it. If its parent is the root, it is simply removed. Otherwise, after removal,
+      let P be the parent and G the grandparent. At depth d = depth(P) ≥ 1, attach C(d) copies of the subtree rooted at P
+      to G, where C(d) starts at 1 and increases by 1 each time you cut at that depth. This variant is inspired by the
+      Kirby–Paris hydra and still always terminates.
+    </p>
+  </header>
+
+  <main>
+    <svg id="tree" width="1000" height="650" aria-label="Hydra Tree"></svg>
+  </main>
+
+  <footer>
+    <p>
+      Tip: Start with Simple or Medium. Try to slay the hydra: remove all leaves so the root has no children.
+      The move counter increments on each cut.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
