@@ -1,42 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kirby–Paris Hydra Game</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Kirby-Paris Hydra Slayer</title>
 </head>
 <body>
-  <header>
-    <h1>Kirby–Paris Hydra (Playable Variant)</h1>
-    <div class="controls">
-      <button id="btnSimple">Simple Hydra</button>
-      <button id="btnMedium">Medium Hydra</button>
-      <button id="btnRandom">Random Hydra</button>
-      <button id="btnReset">Reset</button>
-      <span class="spacer"></span>
-      <span id="status">Moves: 0</span>
-    </div>
-    <p class="note">
-      Rule (variant): Click a leaf to cut it. If its parent is the root, it is simply removed. Otherwise, after removal,
-      let P be the parent and G the grandparent. At depth d = depth(P) ≥ 1, attach C(d) copies of the subtree rooted at P
-      to G, where C(d) starts at 1 and increases by 1 each time you cut at that depth. This variant is inspired by the
-      Kirby–Paris hydra and still always terminates.
-    </p>
-  </header>
+    <h1>Kirby-Paris Hydra Slayer</h1>
+    <p>Click on a red leaf node to chop it off. The hydra will regrow according to the Kirby-Paris rules.</p>
+    <button onclick="initHydra(3)">Chain Length 3</button>
+    <button onclick="initHydra(4)">Chain Length 4</button>
+    <button onclick="initHydra(5)">Chain Length 5</button>
+    <button onclick="initHydra(6)">Chain Length 6</button>
+    <br>
+    <p id="status">Steps: 0</p>
+    <canvas id="hydra" width="1200" height="500" style="border: 1px solid black;"></canvas>
 
-  <main>
-    <svg id="tree" width="1000" height="650" aria-label="Hydra Tree"></svg>
-  </main>
+    <script>
+        const canvas = document.getElementById('hydra');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
 
-  <footer>
-    <p>
-      Tip: Start with Simple or Medium. Try to slay the hydra: remove all leaves so the root has no children.
-      The move counter increments on each cut.
-    </p>
-  </footer>
+        let step = 0;
+        const radius = 10;
+        const hSpacing = 40;
+        const vSpacing = 80;
 
-  <script src="script.js"></script>
+        class Node {
+            constructor(id, children = []) {
+                this.id = id;
+                this.children = children;
+                this.parent = null;
+                this.x = 0;
+                this.y = 0;
+                this.width = 0;
+                for (let child of children) {
+                    child.parent = this;
+                }
+            }
+        }
+
+        let idCounter = 0;
+        function newId() {
+            return idCounter++;
+        }
+
+        let root = new Node(0);
+
+        function initHydra(length) {
+            step = 0;
+            idCounter = length + 1;
+            let current = new Node(length);
+            for (let i = length - 1; i >= 1; i--) {
+                current = new Node(i, [current]);
+            }
+            root.children = [current];
+            root.children[0].parent = root;
+            canvas.removeEventListener('click', handleClick);
+            canvas.addEventListener('click', handleClick);
+            redraw();
+        }
+
+        function deepCopy(node, newParent) {
+            const newNode = new Node(newId());
+            newNode.parent = newParent;
+            for (let child of node.children) {
+                const newChild = deepCopy(child, newNode);
+                newNode.children.push(newChild);
+            }
+            return newNode;
+        }
+
+        function isLeaf(node) {
+            return node.children.length === 0 && node !== root;
+        }
+
+        function computeWidths(node) {
+            let sum = 0;
+            for (let child of node.children) {
+                computeWidths(child);
+                sum += child.width;
+            }
+            node.width = node.children.length === 0 ? hSpacing : Math.max(hSpacing, sum);
+        }
+
+        function placeNodes(node, x, y) {
+            node.x = x;
+            node.y = y;
+            let sumChildWidth = 0;
+            for (let child of node.children) {
+                sumChildWidth += child.width;
+            }
+            let currentX = x - sumChildWidth / 2;
+            for (let child of node.children) {
+                placeNodes(child, currentX + child.width / 2, y - vSpacing);
+                currentX += child.width;
+            }
+        }
+
+        function drawTree(node) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = isLeaf(node) ? 'red' : 'blue';
+            ctx.fill();
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.id, node.x, node.y);
+
+            for (let child of node.children) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y - radius);
+                ctx.lineTo(child.x, child.y + radius);
+                ctx.stroke();
+                drawTree(child);
+            }
+        }
+
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            computeWidths(root);
+            placeNodes(root, canvas.width / 2, canvas.height - 50);
+            drawTree(root);
+            status.innerText = `t = ${step+1}`;
+            if (root.children.length === 0) {
+                status.innerText += ' - Hydra slain!';
+            }
+        }
+
+        function chop(leaf) {
+            step++;
+            const P = leaf.parent;
+            P.children = P.children.filter(c => c !== leaf);
+            if (P !== root) {
+                const G = P.parent;
+                const N = step; // Fixed N=1 for manageable growth
+                for (let i = 0; i < N; i++) {
+                    const copy = deepCopy(P, G);
+                    G.children.push(copy);
+                }
+            }
+            redraw();
+            if (root.children.length === 0) {
+                canvas.removeEventListener('click', handleClick);
+            }
+        }
+
+        function handleClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const nodes = getAllNodes();
+            for (let node of nodes) {
+                if (isLeaf(node)) {
+                    const dx = mx - node.x;
+                    const dy = my - node.y;
+                    if (dx * dx + dy * dy < radius * radius) {
+                        chop(node);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function getAllNodes() {
+            const list = [];
+            function traverse(node) {
+                list.push(node);
+                for (let c of node.children) {
+                    traverse(c);
+                }
+            }
+            traverse(root);
+            return list;
+        }
+
+        canvas.addEventListener('click', handleClick);
+        initHydra(3); // Start with length 3
+    </script>
 </body>
 </html>
-
