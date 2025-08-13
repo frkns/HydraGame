@@ -1,20 +1,37 @@
 body {
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.4;
-  padding: 16px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+    padding: 16px;
 }
 
 #hydra {
-  border: 1px solid black;
-  /* border-radius: 2px; */
+    border: 1px solid black;
+    /* border-radius: 2px; */
 }
 
 .description {
-  max-width: 900px;
-  margin-top: 1em;
+    max-width: 900px;
+    margin-top: 1em;
 }
 
 .rules {
-  max-width: 900px;
-  white-space: pre-line;
+    max-width: 900px;
+    white-space: pre-line;
+}
+
+footer {
+    margin-top: 3em;
+    padding-top: 2em;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+    color: #666;
+}
+
+footer a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
 }
