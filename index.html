@@ -39,14 +39,15 @@
         Eventually no heads remain and the battle ends.
     </p>
 
-    <p style="max-width: 900px;">
+    <p style="max-width: 900px; white-space: pre-line;">
         <strong>Rules:</strong> 
         The game starts at turn $t = 1$.
-            1. Select a leaf node $V$.
-            2. Delete $V$ from tree. Then, attach $t$ copies of the subtree rooted at $V$'s parent to its grandparent*. 
+        <ol type="1">
+            <li>Choose a leaf node $V$.</li>
+            <li>Delete $V$ from tree. Then, attach $t$ copies of the subtree rooted at $V$'s parent to $V$'s grandparent*.</li>
+        </ol>
 
-            *If the grandparent does not exist, do nothing.
-
+        *If the grandparent does not exist, do nothing.
         These rules guarantee termination but this cannot be proven in Peano Arithmetic!
     </p>
 
