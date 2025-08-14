@@ -141,8 +141,22 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // relabel nodes; this also lets us count easily
+    function relabelTree() {  
+        let next = 0;
+        function traverse(node) {
+            node.id = next++;
+            for (let c of node.children) {
+                traverse(c);
+            }
+        }
+        traverse(root);
+        idCounter = next;
+    }
+
     function redraw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        relabelTree();
         computeWidths(root);
         placeNodes(root, canvas.width / 2, canvas.height - 50);
         drawTree(root);
@@ -157,9 +171,7 @@ window.addEventListener('DOMContentLoaded', () => {
         ctx.font = '14px sans-serif';
         ctx.fillText(`Regrowth n = ${n}${reducedGrowth ? ' (reduced)' : ''}`, canvas.width - 8, 8);
         const nodesList = getAllNodes();
-        const maxId = nodesList.reduce((m, nd) => Math.max(m, nd.id), 0);
-        const totalNodes = maxId + 1;
-        ctx.fillText(`Nodes = ${totalNodes}`, canvas.width - 8, 28);
+        ctx.fillText(`Nodes = ${nodesList.length}`, canvas.width - 8, 28);
     }
 
     function chop(leaf) {
