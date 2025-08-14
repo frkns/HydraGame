@@ -55,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     let root = new Node(0);
 
-    function initHydra(length) {
+    function initHydra(length, { preserveView = false } = {}) {
         step = 0;
         idCounter = length + 1;
         let current = new Node(length);
@@ -66,14 +66,16 @@ window.addEventListener('DOMContentLoaded', () => {
         root.children[0].parent = root;
         canvas.removeEventListener('click', handleClick);
         canvas.addEventListener('click', handleClick);
-        // Reset view
-        scale = 1;
-        offsetX = canvas.width / 2;
-        offsetY = canvas.height - 50;
+        if (!preserveView) {
+            // Reset view
+            scale = 1;
+            offsetX = canvas.width / 2;
+            offsetY = canvas.height - 50;
+        }
         redraw();
     }
 
-    function initRandomHydra() {
+    function initRandomHydra({ preserveView = false } = {}) {
         step = 0;
         idCounter = 1;
         const maxDepth = 2 + Math.floor(Math.random() * 3);
@@ -96,10 +98,12 @@ window.addEventListener('DOMContentLoaded', () => {
         randomTop.parent = root;
         canvas.removeEventListener('click', handleClick);
         canvas.addEventListener('click', handleClick);
-        // Reset view
-        scale = 1;
-        offsetX = canvas.width / 2;
-        offsetY = canvas.height - 50;
+        if (!preserveView) {
+            // Reset view
+            scale = 1;
+            offsetX = canvas.width / 2;
+            offsetY = canvas.height - 50;
+        }
         redraw();
     }
 
@@ -266,10 +270,10 @@ window.addEventListener('DOMContentLoaded', () => {
         redraw();
     }
 
-    document.getElementById('btnL3').addEventListener('click', () => initHydra(3));
-    document.getElementById('btnL4').addEventListener('click', () => initHydra(4));
-    document.getElementById('btnL5').addEventListener('click', () => initHydra(5));
-    document.getElementById('btnRandom').addEventListener('click', initRandomHydra);
+    document.getElementById('btnL3').addEventListener('click', () => initHydra(3, { preserveView: true }));
+    document.getElementById('btnL4').addEventListener('click', () => initHydra(4, { preserveView: true }));
+    document.getElementById('btnL5').addEventListener('click', () => initHydra(5, { preserveView: true }));
+    document.getElementById('btnRandom').addEventListener('click', () => initRandomHydra({ preserveView: true }));
     document.getElementById('reducedBtn').addEventListener('click', toggleReducedGrowth);
 
     // panning with left mouse drag; zoom with wheel
@@ -329,6 +333,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
 
     canvas.addEventListener('click', handleClick);
-    initHydra(3);
+    // initial load: reset view
+    initHydra(3, { preserveView: false });
 });
 
